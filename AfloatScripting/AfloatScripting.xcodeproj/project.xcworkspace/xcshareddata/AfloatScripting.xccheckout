@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>B8225E5B-C98E-4D93-B84A-EF975A8542FC</string>
+	<key>IDESourceControlProjectName</key>
+	<string>AfloatScripting</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>30C1A2F6-5326-48C2-A95E-AD83A88D8671</key>
+		<string>https://github.com/lyle-luan/afloat.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>AfloatScripting/AfloatScripting.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>30C1A2F6-5326-48C2-A95E-AD83A88D8671</key>
+		<string>../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/lyle-luan/afloat.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>30C1A2F6-5326-48C2-A95E-AD83A88D8671</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>30C1A2F6-5326-48C2-A95E-AD83A88D8671</string>
+			<key>IDESourceControlWCCName</key>
+			<string>afloat</string>
+		</dict>
+	</array>
+</dict>
+</plist>
