@@ -35,6 +35,8 @@
 @synthesize parentWindow = _parentWindow;
 
 - (void) setParentWindow:(NSWindow*) newParent {
+    
+    L0LogS(@"setParentWindow");
 	if (newParent != _parentWindow) {
 		if (_parentWindow) {
 			[AfloatStorage removeSharedValueForWindow:_parentWindow key:kAfloatPanelControllerKey];
@@ -63,6 +65,7 @@
 }
 
 - (void) parentWindowDidResize:(NSNotification*) n {
+    L0LogS(@"parentWindowDidResize");
 	NSWindow* w = [self window];
 	if (![w isVisible]) return;
 	
@@ -70,6 +73,7 @@
 }
 
 - (void) positionWindowRelativeToParentWindow {
+    L0LogS(@"positionWindowRelativeToParentWindow");
 	NSRect contentRect = [self.parentWindow contentRectForFrameRect:[self.parentWindow frame]];
 	NSWindow* w = [self window];
 	NSRect frame = [w frame];
@@ -85,6 +89,7 @@
 }
 
 - (id) initAttachedToWindow:(NSWindow*) parentWindow {
+    L0LogS(@"initAttachedToWindow");
 	if (self = [self initWithWindowNibName:@"AfloatPanel" owner:self]) {
 		self.parentWindow = parentWindow;
 		lastAlpha = -1;
@@ -94,6 +99,7 @@
 }
 
 + (id) panelControllerForWindow:(NSWindow*) w {
+    L0LogS(@"panelControllerForWindow");
 	id panel = [AfloatStorage sharedValueForWindow:w key:kAfloatPanelControllerKey];
 	if (panel)
 		return panel;
@@ -102,19 +108,28 @@
 }
 
 - (void) dealloc {
+    L0LogS(@"dealloc");
 	[AfloatStorage removeSharedValueForWindow:self.parentWindow key:kAfloatPanelControllerKey];
 	self.parentWindow = nil;
 	[super dealloc];
 }
 
 - (IBAction) toggleWindow:(id) sender {
+    L0LogS(@"toggleWindow");
 	if ([[self window] isVisible])
+    {
 		[self hideWindow:sender];
+        L0LogS(@"hideWindow");
+    }
 	else
+    {
 		[self showWindow:sender];
+        L0LogS(@"showWindow");
+    }
 }
 
 - (IBAction) showWindow:(id) sender {
+    L0LogS(@"showWindow");
 	[self positionWindowRelativeToParentWindow];
 	
 	[self willChangeValueForKey:@"alphaValue"];
@@ -136,6 +151,7 @@
 }
 
 - (IBAction) hideWindow:(id) sender {
+    L0LogS(@"hideWindow");
 	self.parentWindow = nil;
 	NSWindow* w = [self window];
 
@@ -148,11 +164,13 @@
 }
 
 - (void) hideWindowImmediatly {
+    L0LogS(@"hideWindowImmediatly");
 	[self.parentWindow removeChildWindow:[self window]];
 	[[self window] orderOut:self];
 }
 
 - (CGFloat) alphaValue {
+    L0LogS(@"alphaValue");
 	if (self.parentWindow) {
 		lastAlpha = [[Afloat sharedInstance] currentAlphaValueForWindow:self.parentWindow];
 		return lastAlpha;
@@ -164,6 +182,7 @@
 }
 
 - (void) setAlphaValue:(CGFloat) newAlpha {
+    L0LogS(@"setAlphaValue");
 	lastAlpha = newAlpha;
 	[[Afloat sharedInstance] setAlphaValue:newAlpha forWindow:self.parentWindow animated:YES];
 }
@@ -173,6 +192,7 @@
 //}
 
 - (AfloatWindowState) windowState {
+    L0LogS(@"windowState");
 	Afloat* a = [Afloat sharedInstance];
 	
 	if ([a isWindowKeptAfloat:self.parentWindow])
@@ -184,6 +204,7 @@
 }
 
 - (void) setWindowState:(AfloatWindowState) state {
+    L0LogS(@"setWindowState");
 	[self willChangeValueForKey:@"overlay"];
 
 	Afloat* a = [Afloat sharedInstance];
@@ -191,15 +212,19 @@
 	switch (state) {
 		case kAfloatWindowStateNormal:
 			[a setKeptAfloat:NO forWindow:self.parentWindow showBadgeAnimation:NO];
+            L0Log(@"setWindowState: Set window afloat = %d with badge animation = %d", NO, NO);
 			[a setKeptPinnedToDesktop:NO forWindow:self.parentWindow showBadgeAnimation:NO];
+            L0Log(@"setWindowState: Set window pinned to desktop = %d with badge animation = %d", NO, NO);
 			break;
 			
 		case kAfloatWindowStateAfloat:
 			[a setKeptAfloat:YES forWindow:self.parentWindow showBadgeAnimation:NO];
+            L0Log(@"setWindowState: Set window afloat = %d with badge animation = %d", YES, NO);
 			break;
 			
 		case kAfloatWindowStatePinnedToDesktop:
 			[a setKeptPinnedToDesktop:YES forWindow:self.parentWindow showBadgeAnimation:NO];
+            L0Log(@"setWindowState: Set window pinned to desktop = %d with badge animation = %d", YES, NO);
 			break;
 	}
 
@@ -215,27 +240,38 @@
 //}
 
 - (BOOL) isOnAllSpaces {
+    L0LogS(@"isOnAllSpaces");
 	return [[Afloat sharedInstance] isWindowOnAllSpaces:self.parentWindow];
 }
 
 - (void) setOnAllSpaces:(BOOL) spaces {
+    L0LogS(@"setOnAllSpaces");
 	[[Afloat sharedInstance] setOnAllSpaces:spaces forWindow:self.parentWindow];
 	[[self window] setCollectionBehavior:[self.parentWindow collectionBehavior]];
 }
 
 - (BOOL) alphaValueAnimatesOnMouseOver {
+    L0LogS(@"alphaValueAnimatesOnMouseOver");
 	return [[Afloat sharedInstance] alphaValueAnimatesOnMouseOverForWindow:self.parentWindow];
 }
 
 - (void) setAlphaValueAnimatesOnMouseOver:(BOOL) animates {
+    L0LogS(@"setAlphaValueAnimatesOnMouseOver");
 	[[Afloat sharedInstance] setAlphaValueAnimatesOnMouseOver:animates forWindow:self.parentWindow];
 }
 
 - (BOOL) isOverlay {
+    L0LogS(@"isOverlay");
 	return [[Afloat sharedInstance] isWindowOverlay:self.parentWindow];
 }
 
+- (IBAction)pinnedToDesktop:(id)sender
+{
+    self.windowState = kAfloatWindowStatePinnedToDesktop;
+}
+
 - (void) setOverlay:(BOOL) overlay {
+    L0LogS(@"setOverlay");
 	[self willChangeValueForKey:@"alphaValue"];
 	[self willChangeValueForKey:@"keptAfloat"];
 	[self willChangeValueForKey:@"alphaValueAnimatesOnMouseOver"];
@@ -252,6 +288,7 @@
 }
 
 - (IBAction) disableAllOverlays:(id) sender {
+    L0LogS(@"disableAllOverlays");
 	[self willChangeValueForKey:@"overlay"];
 	[self willChangeValueForKey:@"alphaValue"];
 	[self willChangeValueForKey:@"keptAfloat"];
@@ -268,6 +305,7 @@
 }
 
 - (BOOL) canSetAlphaValueAnimatesOnMouseOver {
+    L0LogS(@"canSetAlphaValueAnimatesOnMouseOver");
 	return !self.overlay;
 }
 

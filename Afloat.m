@@ -85,13 +85,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 - (void) install {
 	// Set up menu items ---------------------------------------
-	
+	// SIMBL会调用这里。
+    
+    
+    // 这里的NSApp不是afloat的NSApp，应该是目标App的。
+    
+    // menu是panel中的Window选项。
 	NSMenu* menu = [NSApp windowsMenu];
 	if (!menu) {
 		L0Log(@"%@ found no Window menu in NSApp %@", self, NSApp);
 		return;
 	}
 	
+    // 查找Panel的Window选项卡中Bring All to Front选项的位置
 	NSUInteger index = [self indexForInstallingInMenu:menu];
 	
 	[NSBundle loadNibNamed:@"Afloat" owner:self];
@@ -99,35 +105,53 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	NSImage* badge = [[NSImage alloc] initWithContentsOfFile:
 					  [[self bundle] pathForImageResource:@"AfloatMenuBadge"]];
 	
+    // 获取要添加的menuItem列表
 	NSArray* a = [NSArray arrayWithArray:[_menuWithItems itemArray]];
 	
+    // 在Bring All to Front下面添加一条线
 	if (index < [menu numberOfItems] && ![[menu itemAtIndex:index] isSeparatorItem])
+    {
 		[menu insertItem:[NSMenuItem separatorItem] atIndex:index];
+    }
 
-	for (NSMenuItem* item in a) {
+    // 向panel的Window中添加menuItem，不是线的添加图片
+    for (NSMenuItem* item in a)
+    {
 		[_menuWithItems removeItem:item];
 		
 		if (![item isSeparatorItem])
+        {
 			[item setImage:badge];
+        }
 		
 		[menu insertItem:item atIndex:index];
 		index++;
 	}
 
+    // 在我们添加menuItem后，添加一个线
 	if (index < [menu numberOfItems] && ![[menu itemAtIndex:index] isSeparatorItem])
+    {
 		[menu insertItem:[NSMenuItem separatorItem] atIndex:index];
+    }
 
-	[badge release];
+    _menuWithItems = nil;
 	
-	[_menuWithItems release]; _menuWithItems = nil;
-	
+    // 以下的先不管，不知道他在干什么。
+    // 现在看来从SIMBL调用Afloat的+ (void) load类方法时，使用NSApp获得的是其他App的实例。
+    
 	// Set up swizzling sendEvents: in NSApplication --------------
+    // hack，替换本来的消息执行，为啥勒？
 	
 	NSError* err = nil;
+    
+    // @selector(sendEvent:) 本来的消息
+    // @selector(afloat_sendEvent:) 要替换成该消息
 	BOOL result = [NSApplication jr_swizzleMethod:@selector(sendEvent:) withMethod:@selector(afloat_sendEvent:) error:&err];
 	
 	if (!result) // we want this to be visible to end users, too :)
+    {
 		NSLog(@"<Afloat> Could not install events filter (error: %@). Some features may not work.", err);
+    }
 	
 	// Set up window did become main/did resign main notification
 	
@@ -143,21 +167,39 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	[self installScriptingSupport];
 }
 
-- (NSUInteger) indexForInstallingInMenu:(NSMenu*) m {
+- (NSUInteger) indexForInstallingInMenu:(NSMenu*) m
+{
 	NSUInteger i = 0, lastSeparator = -1;
-	for (NSMenuItem* item in [m itemArray]) {
+	for (NSMenuItem* item in [m itemArray])
+    {
+        // isSeparatorItem这是什么
+        // 点开Panel的Window选项卡，你可以看到很多选项，而且它们是分类的，有点类似tableview的section
+        // 这里的isSeparatorItem应该跟这个相关，一个cell占一个section？
+        // 写个示例程序看看。
+        // 每个cell是一个NSMenuItem，灰色的不是。
+        // SeparatorItem也是一个NSMenuItem，就是那根线，那根线就是SeparatorItem。
 		if ([item isSeparatorItem])
+        {
 			lastSeparator = i;
+        }
+        // arrangeInFront:这又是什么
+        // Panel的Window选项卡的Bring All to Front选项
 		else if ([item action] == @selector(arrangeInFront:))
+        {
 			return i + 1;
+        }
 		
 		i++;
 	}
 	
 	if (lastSeparator != -1)
+    {
 		return lastSeparator + 1;
+    }
 	else
+    {
 		return 0;
+    }
 }
 
 - (NSBundle*) bundle {
@@ -189,7 +231,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 }
 
 - (void) setKeptAfloat:(BOOL) afloat forWindow:(NSWindow*) c showBadgeAnimation:(BOOL) animated {
-	L0Log(@"window = %@, will be afloat = %d, was afloat = %d", c, afloat, [self isWindowKeptAfloat:c]);
+	L0Log(@"window123 = %@, will be afloat = %d, was afloat = %d", c, afloat, [self isWindowKeptAfloat:c]);
 	BOOL wasKeptElsewhere = [self isWindowKeptAfloat:c] || [self isWindowKeptPinnedToDesktop:c];
 
 	if (afloat) {
@@ -410,6 +452,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	NSWindow* w = [self currentWindow];
 	if (!w) { NSBeep(); return; }
 	
+    L0LogS(@"showAdjustEffectsPanel");
 	AfloatPanelController* ctl = [AfloatPanelController panelControllerForWindow:w];
 	[ctl toggleWindow:self];
 }												 
@@ -462,8 +505,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	// BOOL wasPinned = [self isWindowKeptAfloat:c];
 	// TODO: make a badge for "Pinned to Desktop"
 
+    
 	[c setLevel:(pinned)? kCGDesktopWindowLevel : NSNormalWindowLevel];
-		
+    L0Log(@"window level: %ld", (long)c.level);
 	if (!pinned && [self isWindowOverlay:c] && !_settingOverlay)
 		[self setOverlay:NO forWindow:c animated:animated showBadgeAnimation:NO];
 		

@@ -15,6 +15,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #endif
 
 #ifdef __OBJC__
+#ifndef DEBUG
+#define DEBUG
+#endif
 	#ifdef DEBUG
 
 		#define L0Log(x, args...) NSLog(@"<Afloat - DEBUG: '%s'>: " x, __func__, args)
